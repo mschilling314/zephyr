@@ -277,6 +277,13 @@ void modulate_tx_power(void *p1, void *p2, void *p3)
 	}
 }
 
+int model(ehp1, ep1p2, ehp2, a){
+	double temp1 = ehp1*ehp1 + a * ep1p2*ep1p2;
+	double temp2 = ehp2 * ehp2;
+	if (temp1 <= temp2) return 1;
+	return 0;
+}
+
 void main(void)
 {
 	int8_t txp_get = 0xFF;
@@ -294,6 +301,26 @@ void main(void)
 	printk("Get Tx power level ->");
 	get_tx_power(BT_HCI_VS_LL_HANDLE_TYPE_ADV, 0, &txp_get);
 	printk("-> default TXP = %d\n", txp_get);
+	
+	int p1e0;  // power emitted by p1
+	int p1eR; // power received by p1 from hub
+	int he0; // power emitted from hub
+	int p2eR1; // power received by p2 from p1
+	int p2eRh; // power received by p2 from hub
+	// normally, this would be provided by the peripherals
+	// however, for the sake of example code, this will be user input
+	scanf("%d", &p1e0);
+	scanf("%d", &p1eR);
+	scanf("%d", &p2eR1);
+	scanf("%d", &p2eRh);
+	scanf("%d", &he0);
+	double alpha = he0 / p1e0;
+	int b = model(p1eR, p2eR1, p2eRh, alpha);
+	int pwr;
+	if (b) pwr = 0;
+	else pwr = txp_get;
+	set_tx_power(BT_HCI_VS_LL_HANDLE_TYPE_ADV, 0, &pwr);
+	
 
 	/* Wait for 5 seconds to give a chance users/testers
 	 * to check that default Tx power is indeed the one
