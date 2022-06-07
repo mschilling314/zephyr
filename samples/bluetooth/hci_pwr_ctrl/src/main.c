@@ -317,7 +317,10 @@ void main(void)
 	double alpha = he0 / p1e0;
 	int b = model(p1eR, p2eR1, p2eRh, alpha);
 	int pwr;
-	if (b) pwr = 0;
+	if (b) {
+		pwr = 0;
+		printf("Disconnected from p2, use relay through p1");
+	}
 	else pwr = txp_get;
 	set_tx_power(BT_HCI_VS_LL_HANDLE_TYPE_ADV, 0, &pwr);
 	
